@@ -1,0 +1,53 @@
+tasks = ['t1', 't2', 't3', 't4']
+tasks_copy = tasks.copy()
+execution_times = [[3, 2, 4, 1], [5, 4, 7, 2], [6, 3, 5, 3]]
+arrival_times = [1, 3, 2, 2]
+arrival_times_copy = arrival_times.copy()
+
+num_machines = len(execution_times)
+
+sorted_tasks = []
+for i in range(len(tasks)):
+    min_index = arrival_times.index(min(arrival_times))
+    sorted_tasks.append(tasks[min_index])
+    arrival_times.pop(min_index)
+    tasks.pop(min_index)
+
+ready_times = [0] * num_machines
+machine_times = [[] for _ in range(num_machines)]
+waiting_times = []
+
+for task in sorted_tasks:
+    task_index = tasks_copy.index(task)
+
+    machine_execution_times = [execution_times[i][task_index] for i in range(num_machines)]
+    machine_ready_times = [ready_times[i] + machine_execution_times[i] for i in range(num_machines)]
+
+    min_ready_time = min(machine_ready_times)
+    min_machine_index = machine_ready_times.index(min_ready_time)
+
+    start_time = max(ready_times[min_machine_index], arrival_times_copy[task_index])
+    ready_time = start_time + machine_execution_times[min_machine_index]
+    waiting_time = start_time - arrival_times_copy[task_index]
+
+    print("Task", task, "scheduled on machine M" + str(min_machine_index + 1), "at time", start_time)
+    print("Arrival time:", arrival_times_copy[task_index])
+    print("Start time:", start_time)
+    print("Ready time:", ready_time)
+    print("Waiting time:", waiting_time)
+
+    ready_times[min_machine_index] = ready_time
+    waiting_times.append(waiting_time)
+
+    for i in range(num_machines):
+        machine_times[i].append(ready_times[i])
+
+makespan = max([max(machine_times[i]) for i in range(num_machines)])
+print("Makespan:", makespan)
+
+machine_utilizations = [sum(execution_times[i]) / makespan for i in range(num_machines)]
+for i in range(num_machines):
+    print("Machine M" + str(i + 1) + " utilization:", machine_utilizations[i])
+
+average_waiting_time = sum(waiting_times) / len(waiting_times)
+print("Average waiting time:", average_waiting_time)
